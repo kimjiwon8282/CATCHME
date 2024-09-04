@@ -29,6 +29,7 @@ app.listen(8080, function() {
 app.use('/', require('./routes/authRoutes')); // '/'경로로 들어오는 곳에 대해서 라우트디렉 아래 파일을 모두 실행
 app.use('/', require('./routes/emailRoutes'));
 app.use('/', require('./routes/userRoutes'));
+app.use('/', require('./routes/hospitalRoutes')); // 병원 검색 라우트 추가
 
 // 로그인 상태 확인 엔드포인트 ->프론트화면 동적으로 생성하기 위해.
 app.get('/login-status', (req, res) => {
@@ -72,4 +73,9 @@ app.get('/memberinfo/more/updatepassword',requireLogin, (req, res) => {
 
 app.get('/memberinfo/more/memberdelete',requireLogin, (req, res) => {
     res.sendFile(__dirname + '/views/memberDelete.html');
+});
+
+// 병원 검색 결과 페이지 라우트 추가
+app.get('/searchhospitals', (req, res) => {
+    res.sendFile(__dirname + '/views/hospitalSearch.html'); // 병원 검색 결과를 표시할 HTML 파일
 });
