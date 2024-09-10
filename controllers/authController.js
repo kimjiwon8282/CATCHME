@@ -40,12 +40,20 @@ exports.register = asyncHandler(async (req, res) => {
 });
 
 exports.login = asyncHandler(async (req, res) => { //login export
-    const { email, password } = req.body; 
+    const { email, password } = req.body;
+/*     console.log("==============");
+    console.log(email, password);
+    console.log("==============");  */
     const user = await User.findOne({ email }); //DB에서 조회하기
     if (!user || !(await bcrypt.compare(password, user.password))) { //암호화된 패스워드 비교하기
+        console.log((user.password));
         return res.status(401).send('아이디 혹은 비밀번호가 잘못되었습니다.');
     }
-    req.session.userId = user._id; //세션 id저장하기
+    // 로그인 시 세션에 사용자 ID와 역할 저장
+    req.session.user = {
+        id: user._id,        // 사용자 ID
+        role: user.role      // "USER" 또는 "GUARDIAN"
+    };
     res.send('로그인 성공');
 });
 
