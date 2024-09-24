@@ -3,12 +3,11 @@ const asyncHandler = require("express-async-handler"); //try catch (err)
 
 const searchHospitals = asyncHandler(async (req, res) => {
     //앱으로부터 사용자의 위치를 받음
-    const { latitude, longitude, query } = req.query;
+    const latitude = req.query.latitude;
+    const longitude = req.query.longitude;
     const radius = 5000; // 반경 5km
-
-    // 사용자가 query를 입력하지 않았을 때 디폴트 값 설정
-    const defaultQuery = '신경과 치매 치료 병원';
-    const searchQuery = query || defaultQuery;
+    const defaultQuery = '학교';
+    console
     
     try {
         const response = await axios.get(
@@ -18,14 +17,14 @@ const searchHospitals = asyncHandler(async (req, res) => {
                     Authorization: `KakaoAK ${process.env.CLIENT_ID}`
                 },
                 params: {
-                    query: searchQuery,
+                    query: defaultQuery,
                     x: longitude,
                     y: latitude,
                     radius: radius
                 }
             }
         );
-
+        console.log(response.data.documents);
         res.json(response.data.documents); // 병원 목록 반환
     } catch (error) {
         console.error(error);
