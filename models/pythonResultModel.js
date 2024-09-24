@@ -2,13 +2,14 @@ const mongoose = require('mongoose');
 
 const resultSchema = new mongoose.Schema(
     {
-        name:{
-            type:String,
-            required:true
+        userId: { 
+            type: mongoose.Schema.Types.ObjectId, 
+            ref: 'User', // User 모델과 연결
+            required: true 
         },
-        sensor:{
+        result:{
             type:String,
-            required:true
+            required:true        
         }
     },
     {

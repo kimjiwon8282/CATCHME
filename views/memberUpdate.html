@@ -36,8 +36,8 @@
         <h2>개인정보 수정</h2>
         <form id="updateForm">
             <div class="mb-3">
-                <label for="username" class="form-label">이름</label>
-                <input type="text" class="form-control" id="username" name="username" required pattern="^[가-힣]+$" placeholder="한글로 입력하세요.">
+                <label for="name" class="form-label">이름</label>
+                <input type="text" class="form-control" id="name" name="name" required pattern="^[가-힣]+$" placeholder="한글로 입력하세요.">
             </div>
             
             <div class="mb-3">
@@ -82,7 +82,7 @@
           fetch('/userinfo')
               .then(response => response.json())
               .then(data => {
-                  document.getElementById('username').value = data.username;
+                  document.getElementById('name').value = data.name;
                   document.getElementById('email').value = data.email;
                   document.getElementById('phoneNumber').value = data.phoneNumber;
                   document.querySelector(`input[name="gender"][value="${data.gender}"]`).checked = true;
@@ -92,7 +92,7 @@
           document.getElementById('updateForm').addEventListener('submit', function(event) {
               event.preventDefault();
               const updatedUser = {
-                  username: document.getElementById('username').value,
+                  name: document.getElementById('name').value,
                   phoneNumber: document.getElementById('phoneNumber').value,
                   gender: document.querySelector('input[name="gender"]:checked').value
               };

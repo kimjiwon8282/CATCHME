@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 
 const userSchema = new mongoose.Schema({
-    username: {
+    name: {
         type: String,
         required: true,
         validate: {
@@ -26,7 +26,9 @@ const userSchema = new mongoose.Schema({
     },
     phoneNumber: {
         type: String,
-        required: true,
+        required: function() {
+            return !this.kakaoId; // 카카오 로그인이 없을 때만 이메일 필수
+        },
         unique: true,
         validate: {
             validator: function(v) {
@@ -35,21 +37,30 @@ const userSchema = new mongoose.Schema({
             message: props => `${props.value}는 유효한 핸드폰 번호가 아닙니다.`
         }
     },
-    gender: {
+    role: {
         type: String,
-        enum: ['male', 'female'],
-        required: true
+        enum: ['GUARDIAN', 'USER'],
+        required: true,
+        default: 'USER'  // 기본값 추가
     },
     kakaoId: {
         type: String,
         unique: true, // 각 사용자는 고유한 카카오 ID를 가집니다.
         sparse: true // 이 필드는 비어 있을 수 있습니다.
     },
-    kakaoAccessToken: {
-        type: String
+    ageRange: {
+        type: String,
+        enum: [
+            '1~9', '10~14', '15~19', '20~29', 
+            '30~39', '40~49', '50~59', 
+            '60~69', '70~79', '80~89', '90~'
+        ], // 유효한 연령대 범위
+        required: true // ageRange를 필수로 지정
     },
-    kakaoRefreshToken: {
-        type: String
+    gender: {
+        type: String,
+        enum: ['male', 'female'],
+        required: true
     }
 });
 

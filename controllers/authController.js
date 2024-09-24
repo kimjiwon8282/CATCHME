@@ -22,12 +22,14 @@ exports.register = asyncHandler(async (req, res) => {
 
         const hashedPassword = await bcrypt.hash(req.body.password, 10); // 패스워드 암호화
         const user = new User({
-            username: req.body.username,
+            name: req.body.name,
             email: email,
             password: hashedPassword,
             phoneNumber: req.body.phoneNumber,
-            gender: req.body.gender // 성별 필드 추가
+            gender: req.body.gender, // 성별 필드 추가
+            ageRange: req.body.ageRange // 나이대 필드 추가
         });
+        
 
         await user.save(); // DB에 사용자 저장
         verifiedEmails.delete(email); // 인증된 이메일 세트에서 이메일 제거
@@ -45,16 +47,18 @@ exports.login = asyncHandler(async (req, res) => { //login export
     console.log(email, password);
     console.log("==============");  */
     const user = await User.findOne({ email }); //DB에서 조회하기
-    if (!user || !(await bcrypt.compare(password, user.password))) { //암호화된 패스워드 비교하기
-        console.log((user.password));
+    if (!user) {
         return res.status(401).send('아이디 혹은 비밀번호가 잘못되었습니다.');
     }
-    // 로그인 시 세션에 사용자 ID와 역할 저장
-    req.session.user = {
-        id: user._id,        // 사용자 ID
-        role: user.role      // "USER" 또는 "GUARDIAN"
-    };
+
+    if (!(await bcrypt.compare(password, user.password))) {
+        return res.status(401).send('아이디 혹은 비밀번호가 잘못되었습니다.');
+    }
+    // 로그인 시 세션에 사용자 ID저장
+    req.session.userId = user._id; //role도 주는걸로
+    console.log('email login success');
     res.send('로그인 성공');
+    
 });
 
 exports.logout = asyncHandler((req, res) => { //logout export
@@ -66,12 +70,6 @@ exports.logout = asyncHandler((req, res) => { //logout export
     });
 });
 
-exports.requireLogin = (req, res, next) => {//미들웨어
-    if (!req.session.userId) { //세션id검사
-        return res.status(401).send('로그인이 필요합니다.');
-    }
-    next();
-};
 
 exports.reissuePassword = asyncHandler(async (req, res) => {
     try {
@@ -126,14 +124,18 @@ exports.deleteUser = asyncHandler(async (req, res) => {
         const user = await User.findByIdAndDelete(req.session.userId); // DB에서 사용자 삭제
 
         if (!user) {
+            console.log('회원탈퇴 실패');
             return res.status(404).send('사용자를 찾을 수 없습니다.');
         }
 
         req.session.destroy((err) => { // 회원 탈퇴 후 세션 파괴하여 로그아웃 처리
             if (err) {
-                return res.status(500).send('로그아웃 중 오류가 발생했습니다.');
+                console.log('회원탈퇴후 로그아웃 실패');
+                return res.status(500).send('로그아웃 중 오류가 발생했습니다.');    
             }
+            console.log("회원탈퇴 성공");
             res.status(200).send('회원 탈퇴가 완료되었습니다.');
+
         });
     } catch (error) {
         res.status(500).send('회원 탈퇴 중 오류가 발생했습니다.');

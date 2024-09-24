@@ -1,45 +1,38 @@
 const axios = require('axios');
-const asyncHandler = require('express-async-handler');
-require('dotenv').config();
+const asyncHandler = require("express-async-handler"); //try catch (err)
 
-exports.searchHospitals = asyncHandler(async (req, res) => {
-    const { lat, lng } = req.query;
+const searchHospitals = asyncHandler(async (req, res) => {
+    //앱으로부터 사용자의 위치를 받음
+    const { latitude, longitude, query } = req.query;
+    const radius = 5000; // 반경 5km
 
+    // 사용자가 query를 입력하지 않았을 때 디폴트 값 설정
+    const defaultQuery = '신경과 치매 치료 병원';
+    const searchQuery = query || defaultQuery;
+    
     try {
-        const apiKey = process.env.KAKAO_API_KEY;
-        const searchKeywords = ['신경과', '치매안심센터'];
-
-        let results = [];
-
-        for (const keyword of searchKeywords) {
-            const response = await axios.get('https://dapi.kakao.com/v2/local/search/keyword.json', {
-                headers: { Authorization: `KakaoAK ${apiKey}` },
-                params: {
-                    query: keyword,
-                    x: lng,
-                    y: lat,
-                    radius: 2000,
-                    size: 6,
+        const response = await axios.get(
+            `https://dapi.kakao.com/v2/local/search/keyword.json`,
+            {
+                headers: {
+                    Authorization: `KakaoAK ${process.env.CLIENT_ID}`
                 },
-            });
+                params: {
+                    query: searchQuery,
+                    x: longitude,
+                    y: latitude,
+                    radius: radius
+                }
+            }
+        );
 
-            const places = response.data.documents.map(place => ({
-                name: place.place_name,
-                address: place.road_address_name || place.address_name,
-                lat: place.y,
-                lng: place.x,
-                distance: place.distance // 거리 정보 추가
-            }));
-
-            results = results.concat(places);
-        }
-
-        // 거리순으로 정렬
-        results.sort((a, b) => a.distance - b.distance);
-
-        res.json(results.slice(0, 6));
+        res.json(response.data.documents); // 병원 목록 반환
     } catch (error) {
-        console.error('Error fetching hospital data:', error);
-        res.status(500).send('병원 데이터를 가져오는 중 오류가 발생했습니다.');
+        console.error(error);
+        res.status(500).send('서버 오류');
     }
 });
+
+module.exports = {
+    searchHospitals
+};

@@ -1,5 +1,6 @@
 const express = require('express');
-const { register, login, logout, requireLogin, updatePassword, deleteUser, reissuePassword} = require('../controllers/authController');
+const { register, login, logout, updatePassword, deleteUser, reissuePassword} = require('../controllers/authController');
+const { requireLogin } = require('../middlewares/authMiddleware');
 const router = express.Router();
 
 router.route('/register').post(register); //회원가입post

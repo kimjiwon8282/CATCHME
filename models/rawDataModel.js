@@ -2,9 +2,10 @@ const mongoose = require('mongoose');
 
 const rawDataSchema = new mongoose.Schema(
     {
-        name:{
-            type:String,
-            required:true
+        userId: { 
+            type: mongoose.Schema.Types.ObjectId, 
+            ref: 'User', // User 모델과 연결
+            required: true 
         },
         sensor:{
             type:[Number],

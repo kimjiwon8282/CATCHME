@@ -18,27 +18,22 @@ app.use(session({
     }
 }));
 
-const connectToDatabase = require('./config/dbConnect'); // 데이터베이스 연결 함수 불러오기
-const { requireLogin } = require('./controllers/authController');
-connectToDatabase(); // MongoDB 연결
+const dbConnect = require('./config/dbConnect'); // 데이터베이스 연결 함수 불러오기
+const { requireLogin } = require('./middlewares/authMiddleware'); // 미들웨어
+dbConnect(); // MongoDB 연결
 
-app.listen(8080, function() {
-    console.log('listening on 8080');
+app.listen(3000, function() {
+    console.log('listening on 3000');
 });
 
-app.use('/', require('./routes/authRoutes')); // '/'경로로 들어오는 곳에 대해서 라우트디렉 아래 파일을 모두 실행
-app.use('/', require('./routes/emailRoutes'));
-app.use('/', require('./routes/userRoutes'));
-app.use('/', require('./routes/hospitalRoutes')); // 병원 검색 라우트 추가
+app.use('/', require('./routes/authRoute')); // '/'경로로 들어오는 곳에 대해서 라우트디렉 아래 파일을 모두 실행
+app.use('/', require('./routes/emailRoute'));
+app.use('/', require('./routes/userRoute'));
+app.use('/', require('./routes/hospitalRoute')); // 병원 검색 라우트 추가
+app.use('/', require('./routes/kakaoLoginRoute')); //카카오 로그인 라우트 추가
+app.use('/', require('./routes/pythonResultRoute'))
 
-// 로그인 상태 확인 엔드포인트 ->프론트화면 동적으로 생성하기 위해.
-app.get('/login-status', (req, res) => {
-    if (req.session.userId) {
-      res.json({ loggedIn: true });
-    } else {
-      res.json({ loggedIn: false });
-    }
-  });
+
 
 app.get('/', (req, res) => {
     res.sendFile(__dirname + '/views/home.html');
@@ -73,9 +68,4 @@ app.get('/memberinfo/more/updatepassword',requireLogin, (req, res) => {
 
 app.get('/memberinfo/more/memberdelete',requireLogin, (req, res) => {
     res.sendFile(__dirname + '/views/memberDelete.html');
-});
-
-// 병원 검색 결과 페이지 라우트 추가
-app.get('/searchhospitals', (req, res) => {
-    res.sendFile(__dirname + '/views/hospitalSearch.html'); // 병원 검색 결과를 표시할 HTML 파일
 });
