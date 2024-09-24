@@ -28,4 +28,4 @@ Templates/
 *.war
 *.ear
 *.db
-.env
+#.env
