@@ -11,6 +11,11 @@ const userSchema = new mongoose.Schema({
             message: props => `${props.value}는 한글만 입력 가능합니다.`
         }
     },
+    contactId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User', // 이 필드는 다른 User 문서와 연결됩니다.
+        sparse: true // 비어 있을 수 있습니다.
+    },
     email: {
         type: String,
         required: function() {

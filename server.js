@@ -32,6 +32,7 @@ app.use('/', require('./routes/userRoute'));
 app.use('/', require('./routes/hospitalRoute')); // 병원 검색 라우트 추가
 app.use('/', require('./routes/kakaoLoginRoute')); //카카오 로그인 라우트 추가
 app.use('/', require('./routes/pythonResultRoute'))
+app.use('/', require('./routes/roleRoute'))
 
 
 
