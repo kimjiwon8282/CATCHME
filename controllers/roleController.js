@@ -71,7 +71,7 @@ const giveQrCodeInfo = asyncHandler(async (req, res) => {
 });
 
 const linkGuardianAndUser = asyncHandler(async (req, res) => {
-    const userId = req.body; // 보호자가 전달한 사용자 ID
+    const userId = req.body.userId; // 보호자가 전달한 사용자 ID
     const guardianId = req.session.userId; // 세션에서 보호자 ID를 가져옵니다.
     console.log(userId)
     console.log(guardianId)
