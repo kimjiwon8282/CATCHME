@@ -21,7 +21,7 @@ const setGuardianRole = asyncHandler(async (req, res) => {
         user.role = 'GUARDIAN';
         await user.save();
 
-        return res.status(200).json({ message: 'Role updated to guardian', next: '/role/camera' });
+        return res.status(200).json({ message: 'Role updated to guardian' });
     } catch (error) {
         return res.status(500).json({ message: 'Error updating role', error: error.message });
     }
