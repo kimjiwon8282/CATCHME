@@ -81,6 +81,9 @@ const linkGuardianAndUser = asyncHandler(async (req, res) => {
         const user = await User.findById(userId);
         const guardian = await User.findById(guardianId);
 
+        console.log(user)
+        console.log(guardian)
+
         // 사용자와 보호자 유무 확인
         if (!user || !guardian) {
             return res.status(404).json({ message: 'User or Guardian not found' });
