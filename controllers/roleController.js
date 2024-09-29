@@ -60,7 +60,7 @@ const giveQrCodeInfo = asyncHandler(async (req, res) => {
         console.log('User ID:', userId);
 
         // QR 코드에 포함할 데이터 (예: 사용자 ID 또는 다른 정보)
-        const qrData = `User ID: ${userId}`; 
+        const qrData = `${userId}`; 
         console.log(qrData)
 
         // QR 코드를 클라이언트에 반환
