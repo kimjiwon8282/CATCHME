@@ -16,26 +16,8 @@ const createRawData = asyncHandler(async (req, res) => {
     console.log(req.body);
     const dataArray = req.body;
 
-    // Validate each item in the array
-    for (let item of dataArray) {
-      const { id, name, sensors } = item;
-      if (!name || !sensors) {
-        return res.status(400).json({
-          error: 'Invalid request',
-          message: !name ? 'Name is required' : 'Sensors are required',
-          received: item
-        });
-      }
-
-      try{
-        await RawData.create({ name, sensors });
-      }catch (err) {
-        console.log(err);
-        res.status(500).json({ error: 'Internal Server Error', details: err.message });
-      }
-    }
-
-    res.status(201).send("Create RawData");
+    console.log(dataArray)
+    res.status(201).send("Send RawData");
   }
 );
 
