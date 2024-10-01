@@ -1,6 +1,6 @@
 const express = require("express");
 const router = express.Router();
-const { } = require("../controllers/roleController");
+const { createRawData} = require("../controllers/rawDataController");
 const { requireLogin } = require('../middlewares/authMiddleware');
 
 // 센서 데이터 받기
