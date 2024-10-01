@@ -42,6 +42,7 @@ app.use('/', require('./routes/pythonResultRoute'))
 app.use('/', require('./routes/roleRoute'))
 app.use('/', require('./routes/alarmRoute'))
 app.use('/', require('./routes/rawDataRoute'))
+app.get('/game', (req, res) => {res.redirect('https://www.youtube.com/watch?v=Qw6gnRgwyWo');});
 
 
 
