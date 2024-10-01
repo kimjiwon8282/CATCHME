@@ -29,3 +29,4 @@ Templates/
 *.ear
 *.db
 #.env
+firebase-adminsdk.json

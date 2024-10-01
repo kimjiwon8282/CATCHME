@@ -66,6 +66,10 @@ const userSchema = new mongoose.Schema({
         type: String,
         enum: ['male', 'female'],
         required: true
+    },
+    pushToken: {
+        type: String,
+        sparse: true // 이 필드는 비어 있을 수 있습니다.
     }
 });
 

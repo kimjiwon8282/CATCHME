@@ -2,6 +2,8 @@ require('dotenv').config(); // 환경 변수 설정 ->모든파일에서 환경�
 const express = require('express');
 const session = require('express-session'); // 로그인 시 세션 필요
 const bodyParser = require('body-parser');
+const admin = require('firebase-admin')
+let serviceAccount = require('./firebase-adminsdk.json')
 
 const app = express();
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -22,6 +24,11 @@ const dbConnect = require('./config/dbConnect'); // 데이터베이스 연결 �
 const { requireLogin } = require('./middlewares/authMiddleware'); // 미들웨어
 dbConnect(); // MongoDB 연결
 
+//firebase
+admin.initializeApp({
+    credential: admin.credential.cert(serviceAccount)
+})
+
 app.listen(3000, function() {
     console.log('listening on 3000');
 });
@@ -33,6 +40,7 @@ app.use('/', require('./routes/hospitalRoute')); // 병원 검색 라우트 추�
 app.use('/', require('./routes/kakaoLoginRoute')); //카카오 로그인 라우트 추가
 app.use('/', require('./routes/pythonResultRoute'))
 app.use('/', require('./routes/roleRoute'))
+app.use('/', require('./routes/alarmRoute'))
 
 
 
