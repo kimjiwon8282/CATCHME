@@ -41,6 +41,7 @@ app.use('/', require('./routes/kakaoLoginRoute')); //카카오 로그인 라우�
 app.use('/', require('./routes/pythonResultRoute'))
 app.use('/', require('./routes/roleRoute'))
 app.use('/', require('./routes/alarmRoute'))
+app.use('/', require('./routes/rawDataRoute'))
 
 
 
