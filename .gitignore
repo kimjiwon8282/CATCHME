@@ -28,5 +28,9 @@ Templates/
 *.war
 *.ear
 *.db
-#.env
+
+# 환경 변수 파일 무시
+.env
+
+# Firebase 인증 정보 파일 무시
 firebase-adminsdk.json
