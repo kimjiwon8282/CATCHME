@@ -1,6 +1,7 @@
 const asyncHandler = require('express-async-handler');
 const questionService = require('../services/questionService');
 const Question = require("../models/questionModel");
+const { sendPushNotification } = require("../services/alarmService"); // 알림 서비스 가져오기
 
 const processResults = asyncHandler(async (req, res) => {
     const userId = req.session.userId;
@@ -14,6 +15,20 @@ const processResults = asyncHandler(async (req, res) => {
 
     // 결과를 데이터베이스에 저장
     await questionService.saveQuestionResult(userId, answers, result);
+
+    // 결과가 '가까운 보건소에 방문하여 더 정확한 치매검진을 받아보세요'일 때 보호자에게 알림 전송
+    if (result === '가까운 보건소에 방문하여 더 정확한 치매검진을 받아보세요') {
+        // 알림 전송
+        try {
+            const title = '치매 검진 필요 알림';
+            const body = '가까운 보건소에 방문하여 더 정확한 치매검진을 받아보세요';
+            
+            // 보호자에게 알림 전송
+            await sendPushNotification(userId, title, body); // userId를 이용해 알림 전송
+        } catch (error) {
+            console.error('알림 전송 중 오류 발생:', error);
+        }
+    }
     res.status(200).send(result);
 });
 
@@ -27,6 +42,8 @@ const getAllQuestionResults = asyncHandler(async (req, res) => {
     const questionResults = await Question.find({ userId });
     res.status(200).json(questionResults);
 });
+
+
 
 module.exports = {
     processResults,

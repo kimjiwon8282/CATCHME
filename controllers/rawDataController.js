@@ -13,7 +13,6 @@ const getAllRawDatas = asyncHandler(async (req, res) => {
 // @route POST /rawdatas
 // 새 데이터 추가하기
 const createRawData = asyncHandler(async (req, res) => {
-    console.log(req.body);
     const dataArray = req.body;
 
     console.log(dataArray)
