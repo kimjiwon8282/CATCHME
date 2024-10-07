@@ -45,8 +45,7 @@ const userSchema = new mongoose.Schema({
     role: {
         type: String,
         enum: ['GUARDIAN', 'USER'],
-        required: true,
-        default: 'USER'  // 기본값 추가
+        sparse: true // 이 필드는 비어 있을 수 있습니다.
     },
     kakaoId: {
         type: String,

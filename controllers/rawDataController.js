@@ -1,26 +1,21 @@
-const asyncHandler = require("express-async-handler"); //try catch (err)
-const RawData = require("../models/rawDataModel");
+const asyncHandler = require('express-async-handler');
+const { saveRawDataToLocal } = require('../services/rawDataService');
+const RawData = require('../models/rawDataModel');
 
-// @desc Get all rawdatas
-// @route GET /rawdatas
-// 전체 데이터 보기
-const getAllRawDatas = asyncHandler(async (req, res) => {
-    const rawData = await RawData.find();
-    res.status(200).send(rawData);
-});
-
-// @desc Create a rawdatas
-// @route POST /rawdatas
-// 새 데이터 추가하기
-const createRawData = asyncHandler(async (req, res) => {
+// 로컬에 raw data를 저장하고 메타데이터를 DB에 저장하는 컨트롤러 함수
+exports.createRawData = asyncHandler(async (req, res) => {
+    const userId = req.session.userId;
     const dataArray = req.body;
 
-    console.log(dataArray)
-    res.status(201).send("Send RawData");
-  }
-);
+    try {
+        // 데이터를 로컬 디바이스에 저장하고 파일 경로 반환
+        const localPath = await saveRawDataToLocal(userId, dataArray);
 
-module.exports = {
-    getAllRawDatas,
-    createRawData
-};
+        // 메타데이터를 DB에 저장
+        await RawData.create({ userId, filePath: localPath, timestamp: new Date() });
+
+        res.status(201).send('Raw data saved successfully');
+    } catch (error) {
+        res.status(500).json({ message: 'Failed to save raw data', error: error.message });
+    }
+});
