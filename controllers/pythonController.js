@@ -4,7 +4,7 @@ const { runPythonScript } = require("../services/runPythonService");
 const { sendPushNotification } = require('../controllers/alarmController');
 
 // @desc 파이썬 결과 저장하고 응답으로 주기
-// @route POST /result
+// @route POST /ai/result
 // @access Public
 const createResult = asyncHandler(async (req, res) => {
     const userId = req.session.userId;
@@ -15,20 +15,22 @@ const createResult = asyncHandler(async (req, res) => {
     console.log({ userId, result });
 
     // 데이터베이스에 결과를 저장
-    const savedResult = await Result.create({ userId, result });
+    await Result.create({ userId, result });
 
     // 결과가 0일 경우 보호자에게 알람 전송 (신속한 전송 위해 분석결과 나오자마자 바로 전송)
     if (result === 0) {
         // 알림 메시지 전송
         try {
             await sendPushNotification(userId, '긴급 알림', '환자의 상태가 비정상입니다. 즉시 확인하세요.');
+            // 알림 전송 후 프론트에서 /question으로 리디렉션
+            return res.status(201).json({ message: "환자의 상태가 비정상입니다.", redirect: "/question" });
         } catch (error) {
             console.error('Error sending notification:', error.message);
         }
     }
 
-    // 결과 저장 완료 후 응답 전송
-    res.status(201).json({ message: "Result created successfully", result: savedResult });
+    // 결과가 1일 경우 기본 응답 전송
+    res.status(201).json({ message: "환자의 상태가 정상입니다." });
 });
 
 // @desc Get all results by userId
