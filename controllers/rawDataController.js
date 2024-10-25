@@ -7,12 +7,16 @@ exports.createRawData = asyncHandler(async (req, res) => {
     const userId = req.session.userId;
     const dataArray = req.body;
 
+    // 데이터 구조 확인
+    console.log("Received data:", JSON.stringify(dataArray, null, 2));
+
     try {
         // 데이터를 로컬 디바이스에 저장하고 파일 경로 반환
         const localPath = await saveRawDataToLocal(userId, dataArray);
 
         // 메타데이터를 DB에 저장
         await RawData.create({ userId, filePath: localPath, timestamp: new Date() });
+        console.log("File save success");
 
         res.status(201).send('Raw data saved successfully');
     } catch (error) {

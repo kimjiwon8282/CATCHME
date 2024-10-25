@@ -1,13 +1,21 @@
-require('dotenv').config(); // 환경 변수 설정 ->모든파일에서 환경변수 사용가능.
+require('dotenv').config(); // 환경 변수 설정 -> 모든 파일에서 환경 변수 사용 가능
 const express = require('express');
 const session = require('express-session'); // 로그인 시 세션 필요
 const bodyParser = require('body-parser');
-const admin = require('firebase-admin')
-let serviceAccount = require('./firebase-adminsdk.json')
+const admin = require('firebase-admin');
+const path = require('path');
 
+let serviceAccount = require('./firebase-adminsdk.json');
+
+// Express 애플리케이션 초기화
 const app = express();
-app.use(bodyParser.urlencoded({ extended: true }));
-app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: true, limit: '10mb' })); // 요청 본문 크기 제한 설정
+app.use(bodyParser.json({ limit: '10mb' })); // JSON 요청 본문 크기 제한 설정
+
+// Firebase 초기화
+admin.initializeApp({
+    credential: admin.credential.cert(serviceAccount)
+});
 
 // 세션 미들웨어 설정
 app.use(session({
@@ -20,63 +28,70 @@ app.use(session({
     }
 }));
 
+// 데이터베이스 연결
 const dbConnect = require('./config/dbConnect'); // 데이터베이스 연결 함수 불러오기
-const { requireLogin } = require('./middlewares/authMiddleware'); // 미들웨어
 dbConnect(); // MongoDB 연결
 
-//firebase
-admin.initializeApp({
-    credential: admin.credential.cert(serviceAccount)
-})
+// 미들웨어
+const { requireLogin } = require('./middlewares/authMiddleware');
 
-app.listen(3000, function() {
-    console.log('listening on 3000');
+// 서버 시작
+const PORT = 3000;
+app.listen(PORT, function() {
+    console.log(`Server listening on port ${PORT}`);
 });
 
-app.use('/', require('./routes/authRoute')); // '/'경로로 들어오는 곳에 대해서 라우트디렉 아래 파일을 모두 실행
-app.use('/', require('./routes/emailRoute'));
-app.use('/', require('./routes/userRoute'));
-app.use('/', require('./routes/hospitalRoute')); // 병원 검색 라우트 추가
-app.use('/', require('./routes/kakaoLoginRoute')); //카카오 로그인 라우트 추가
-app.use('/', require('./routes/pythonResultRoute'))
-app.use('/', require('./routes/roleRoute'))
-app.use('/', require('./routes/alarmRoute'))
-app.use('/', require('./routes/rawDataRoute'))
-app.get('/game', (req, res) => {res.redirect('https://www.youtube.com/watch?v=Qw6gnRgwyWo');});
+// 라우트 설정
+const routes = [
+    './routes/authRoute',
+    './routes/emailRoute',
+    './routes/userRoute',
+    './routes/hospitalRoute',
+    './routes/kakaoLoginRoute',
+    './routes/pythonResultRoute',
+    './routes/roleRoute',
+    './routes/alarmRoute',
+    './routes/rawDataRoute'
+];
 
-
-
-app.get('/', (req, res) => {
-    res.sendFile(__dirname + '/views/home.html');
+routes.forEach(route => {
+    app.use('/', require(route));
 });
 
-app.get('/register', (req, res) => {
-    res.sendFile(__dirname + '/views/register.html');
+// 정적 파일 제공 경로 설정
+app.use(express.static(path.join(__dirname, 'views')));
+
+// 게임 URL 리디렉트 라우트
+app.get('/game', (req, res) => {
+    res.redirect('https://www.youtube.com/watch?v=Qw6gnRgwyWo');
 });
 
-app.get('/login', (req, res) => {
-    res.sendFile(__dirname + '/views/login.html');
-});
-app.get('/login/reissuepass', (req, res) => {
-    res.sendFile(__dirname + '/views/reissuePass.html');
+// 정적 HTML 파일 라우트 설정
+const routesToViews = [
+    { path: '/', file: 'home.html' },
+    { path: '/register', file: 'register.html' },
+    { path: '/login', file: 'login.html' },
+    { path: '/login/reissuepass', file: 'reissuePass.html' }
+];
+
+const authenticatedRoutesToViews = [
+    { path: '/memberinfo', file: 'memberInfo.html' },
+    { path: '/memberinfo/more', file: 'memberInfoMore.html' },
+    { path: '/memberinfo/more/update', file: 'memberUpdate.html' },
+    { path: '/memberinfo/more/updatepassword', file: 'updatePassword.html' },
+    { path: '/memberinfo/more/memberdelete', file: 'memberDelete.html' }
+];
+
+// 공용 라우트 설정
+routesToViews.forEach(route => {
+    app.get(route.path, (req, res) => {
+        res.sendFile(path.join(__dirname, 'views', route.file));
+    });
 });
 
-app.get('/memberinfo',requireLogin, (req, res) => {
-    res.sendFile(__dirname + '/views/memberInfo.html');
-});
-
-app.get('/memberinfo/more',requireLogin,(req,res)=>{
-    res.sendFile(__dirname + '/views/memberInfoMore.html');
-});
-
-app.get('/memberinfo/more/update',requireLogin, (req, res) => {
-    res.sendFile(__dirname + '/views/memberUpdate.html');
-});
-
-app.get('/memberinfo/more/updatepassword',requireLogin, (req, res) => {
-    res.sendFile(__dirname + '/views/updatePassword.html');
-});
-
-app.get('/memberinfo/more/memberdelete',requireLogin, (req, res) => {
-    res.sendFile(__dirname + '/views/memberDelete.html');
+// 로그인 필요 라우트 설정
+authenticatedRoutesToViews.forEach(route => {
+    app.get(route.path, requireLogin, (req, res) => {
+        res.sendFile(path.join(__dirname, 'views', route.file));
+    });
 });

@@ -6,6 +6,11 @@ const { parse } = require('json2csv'); // json 데이터를 csv 형식으로 변
 // 데이터를 CSV로 저장하고 로컬 디바이스에 저장하는 함수
 exports.saveRawDataToLocal = async (userId, dataArray) => {
     try {
+        // gyroAccelData와 pressureData가 존재하는지 확인
+        if (!dataArray.gyroAccelData || !dataArray.pressureData) {
+            throw new Error('Invalid data format: gyroAccelData or pressureData is missing');
+        }
+
         // gyroAccelData와 pressureData를 같은 행에 나란히 저장할 수 있도록 변환
         const combinedData = dataArray.gyroAccelData.map((gyroValue, index) => ({
             gyroAccelData: gyroValue,
@@ -17,7 +22,7 @@ exports.saveRawDataToLocal = async (userId, dataArray) => {
         const csv = parse(combinedData, { fields });
 
         // 파일 경로 설정
-        const dirPath = path.join(__dirname, '../CATCHME/rawDataStorage', userId);
+        const dirPath = path.join(__dirname, '../rawDataStorage', userId);
 
         // 디렉터리 생성 (없을 경우)
         if (!fs.existsSync(dirPath)) {
@@ -26,10 +31,11 @@ exports.saveRawDataToLocal = async (userId, dataArray) => {
 
         const filePath = path.join(dirPath, `${uuidv4()}.csv`);
         fs.writeFileSync(filePath, csv); // CSV 파일로 저장
+        console.log(filePath);
 
         return filePath;
     } catch (error) {
-        console.error('Error saving raw data to local device:', error);
+        console.error('Error saving raw data to local device:', error.message);
         throw new Error('Failed to save raw data to local device');
     }
 };
