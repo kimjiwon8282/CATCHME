@@ -11,7 +11,7 @@ const rawDataSchema = new mongoose.Schema(
             type: String, 
             required: true 
         },
-        timestamp: {
+        timestamp: { //문서 처음 생성시 현재 날짜,시간
             type: Date,
             default: Date.now
         }
