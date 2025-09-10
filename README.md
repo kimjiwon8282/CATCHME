@@ -115,7 +115,7 @@ if (result === 0) { // 비정상
   );
 }
 ```
-```
+```jsx
 // controllers/alarmController.js
 const sendPushNotification = asyncHandler(async (userId, title, body) => {
   const user = await User.findById(userId);           // 1) 환자
@@ -193,6 +193,7 @@ const linkGuardianAndUser = asyncHandler(async (req, res) => {
 - 보행 데이터 파이프라인(수집 → 가공 → 분석 → 알림) 완성  
 - Node.js ⇄ Python 비동기 연동 경험 강화  
 - Git 기반 협업 및 Conflict 해결 프로세스 숙련  
+
 
 
 
